@@ -5,12 +5,9 @@ import torch
 import warnings
 
 warnings.filterwarnings('ignore')
-gen = torch.Generator().manual_seed(9968)
-if not os.path.exists('data/trainingData.pkl'):
-    sys.exit("Training data file does not exist.\n")
-
-with open('data/trainingData.pkl', 'rb') as file:
-    data = pickle.load(file)
+gen = torch.Generator(device = 'cuda').manual_seed(9968)
+torch.cuda.set_device(0)
+torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
 
 class linear:
@@ -48,7 +45,7 @@ class BatchNorm1d:
         else:
             xmean = self.running_mean
             xvar = self.running_var
-        x_norm = (x - x.mean) / torch.sqrt(xvar + self.eps)  # normalizing
+        x_norm = (x - xmean) / torch.sqrt(xvar + self.eps)  # normalizing
         self.out = self.gamma * x_norm + self.beta
         # update the buffers
         if self.training:
